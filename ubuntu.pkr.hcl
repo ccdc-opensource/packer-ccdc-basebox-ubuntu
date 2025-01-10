@@ -22,6 +22,8 @@ packer {
 
 variable "vagrant_box" { type = string }
 variable "output_directory" { type = string }
+variable "iso_url" { type = string }
+variable "iso_checksum" { type = string }
 
 // Ansible provisioning settings
 variable "artifactory_api_key" {
@@ -42,13 +44,13 @@ variable "user_username" {
 }
 
 // Basic hardware specs
-variable "cpu_count" {
+variable "cpus" {
   type = number
   default =  "2"
 }
-variable "ram_gb" {
+variable "ram_mb" {
   type = number
-  default =  "4"
+  default =  4096
 }
 variable "disk_size" {
   type = string
@@ -130,10 +132,10 @@ source "hyperv-iso" "ubuntu" {
   disk_size          = "${var.disk_size}"
   enable_secure_boot = false
   generation         = "${var.hyperv_generation}"
-  http_directory     = "${local.http_directory}"
-  iso_checksum       = "${var.iso_checksum_type}:${var.iso_checksum}"
-  iso_url            = "${var.mirror}/${var.mirror_directory}/${var.iso_name}"
-  memory             = "${var.memory}"
+  http_directory     = "./http"
+  iso_checksum       = "${var.iso_checksum}"
+  iso_url            = "${var.iso_url}"
+  ram_gb             = "${var.ram_mb} / 1024"
   output_directory   = "${var.build_directory}/packer-${var.template}-hyperv"
   shutdown_command   = "echo 'vagrant' | sudo -S shutdown -P now"
   ssh_password       = "vagrant"
@@ -149,16 +151,14 @@ source "virtualbox-iso" "ubuntu" {
   boot_wait               = "4s"
   cpus                    = "${var.cpus}"
   disk_size               = "${var.disk_size}"
-  guest_additions_path    = "VBoxGuestAdditions_{{ .Version }}.iso"
-  guest_additions_url     = "${var.guest_additions_url}"
   guest_os_type           = "Ubuntu_64"
   hard_drive_interface    = "sata"
   headless                = "${var.headless}"
-  http_directory          = "${local.http_directory}"
-  iso_checksum            = "${var.iso_checksum_type}:${var.iso_checksum}"
-  iso_url                 = "${var.mirror}/${var.mirror_directory}/${var.iso_name}"
-  memory                  = "${var.memory}"
-  output_directory        = "${var.build_directory}/packer-${var.template}-virtualbox"
+  http_directory          = "./http"
+  iso_checksum            = "${var.iso_checksum}"
+  iso_url                 = "${var.iso_url}"
+  memory                  = "${var.ram_mb}"
+  output_directory        = "${var.output_directory}/virtualbox"
   shutdown_command        = "echo 'vagrant' | sudo -S shutdown -P now"
   ssh_handshake_attempts  = 20
   ssh_password            = "vagrant"
@@ -167,7 +167,7 @@ source "virtualbox-iso" "ubuntu" {
   ssh_username            = "vagrant"
   vboxmanage              = [["modifyvm", "{{ .Name }}", "--clipboard-mode", "bidirectional"], ["modifyvm", "{{ .Name }}", "--graphicscontroller", "vmsvga"], ["modifyvm", "{{ .Name }}", "--accelerate3d", "on"], ["storageattach", "{{ .Name }}", "--storagectl", "SATA Controller", "--port", "1", "--device", "0", "--type", "dvddrive", "--medium", "emptydrive"]]
   virtualbox_version_file = ".vbox_version"
-  vm_name                 = "${var.template}"
+  vm_name                 = "${var.vagrant_box}"
 }
 
 source "vmware-iso" "ubuntu" {
@@ -177,19 +177,19 @@ source "vmware-iso" "ubuntu" {
   disk_size            = "${var.disk_size}"
   guest_os_type        = "ubuntu-64"
   headless             = "${var.headless}"
-  http_directory       = "${local.http_directory}"
-  iso_checksum         = "${var.iso_checksum_type}:${var.iso_checksum}"
-  iso_url              = "${var.mirror}/${var.mirror_directory}/${var.iso_name}"
-  memory               = "${var.memory}"
+  http_directory       = "./http"
+  iso_checksum         = "${var.iso_checksum}"
+  iso_url              = "${var.iso_url}"
+  memory               = "${var.ram_mb}"
   network_adapter_type = "VMXNET3"
-  output_directory     = "${var.build_directory}/packer-${var.template}-vmware"
+  output_directory     = "${var.output_directory}/vmware"
   shutdown_command     = "echo 'vagrant' | sudo -S shutdown -P now"
   ssh_password         = "vagrant"
   ssh_port             = 22
   ssh_timeout          = "1h"
   ssh_username         = "vagrant"
   tools_upload_flavor  = ""
-  vm_name              = "${var.template}"
+  vm_name              = "${var.vagrant_box}"
   vmx_data = {
     "cpuid.coresPerSocket"    = "1"
     "disk.EnableUUID"         = "TRUE"
@@ -219,10 +219,10 @@ source "vsphere-iso" "ubuntu" {
       disk_thin_provisioned = true
   }
   guest_os_type        = "ubuntu64Guest"
-  http_directory       = "${local.http_directory}"
-  iso_checksum         = "${var.iso_checksum_type}:${var.iso_checksum}"
-  iso_url              = "${var.mirror}/${var.mirror_directory}/${var.iso_name}"
-  RAM                  = "${var.memory}"
+  http_directory       = "./http"
+  iso_checksum         = "${var.iso_checksum}"
+  iso_url              = "${var.iso_url}"
+  memory               = "${var.ram_mb}"
   shutdown_command     = "echo 'vagrant' | sudo -S /sbin/halt -h -p"
   ssh_password         = "vagrant"
   ssh_port             = 22
@@ -240,7 +240,7 @@ source "vsphere-iso" "ubuntu" {
 # https://www.packer.io/docs/templates/hcl_templates/blocks/build
 build {
   sources = [
-    "source.hyperv-iso.ubuntu",
+    // "source.hyperv-iso.ubuntu",
     "source.virtualbox-iso.ubuntu",
     "source.vmware-iso.ubuntu",
     "source.vsphere-iso.ubuntu"
