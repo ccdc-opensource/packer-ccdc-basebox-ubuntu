@@ -9,11 +9,5 @@ roles:
   - src: git@github.com:ccdc-opensource/ansible-role-compact-vm-image
     scm: git
     name: ccdc.compact-vm-image
-  - src: https://github.com/feffi/ansible-macos-standby.git
-    name: feffi.macos-standby
-  - src: https://github.com/florianpiesche/ansible-macos-defaults/
-    version: patch-1
-    name: feffi.macos-defaults
-
 collections:
   - devsec.hardening
