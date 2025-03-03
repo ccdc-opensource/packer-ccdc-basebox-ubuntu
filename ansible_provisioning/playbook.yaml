@@ -11,7 +11,7 @@
     - role: ccdc.install-vm-tools
     - role: devsec.hardening.ssh_hardening
       vars:
-        sshd_authenticationmethods: publickey password 
+        sshd_authenticationmethods: publickey password
         ssh_client_password_login: true
         ssh_server_password_login: true
         ssh_kerberos_support: false
