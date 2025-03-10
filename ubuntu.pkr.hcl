@@ -20,108 +20,8 @@ packer {
   }
 }
 
-variable "vagrant_box" { type = string }
-variable "output_directory" { type = string }
-variable "iso_url" { type = string }
-variable "iso_checksum" { type = string }
-
-// Ansible provisioning settings
-variable "artifactory_api_key" {
-  type = string
-  default = env("ARTIFACTORY_API_KEY")
-}
-variable "artifactory_username" {
-  type = string
-  default =  env("USER")
-}
-variable "user_password" {
-  type = string
-  default = "vagrant"
-}
-variable "user_username" {
-  type = string
-  default = "vagrant"
-}
-
-// Basic hardware specs
-variable "cpus" {
-  type = number
-  default =  "2"
-}
-variable "ram_mb" {
-  type = number
-  default =  4096
-}
-variable "disk_size" {
-  type = string
-  default =  "500000"
-}
-variable "headless" {
-  type    = bool
-  default = false
-}
-
-// VSphere settings
-variable "vmware_center_cluster_name" {
-  type    = string
-  default = "${env("VMWARECENTER_CLUSTER_NAME")}"
-}
-variable "vmware_center_datacenter" {
-  type    = string
-  default = "${env("VMWARECENTER_DATACENTER")}"
-}
-variable "vmware_center_datastore" {
-  type    = string
-  default = "${env("VMWARECENTER_DATASTORE")}"
-}
-variable "vmware_center_esxi_host" {
-  type    = string
-  default = "${env("VMWARECENTER_ESXI_HOST")}"
-}
-variable "vmware_center_host" {
-  type    = string
-  default = "${env("VMWARECENTER_HOST")}"
-}
-variable "vmware_center_password" {
-  type      = string
-  default   = "${env("VMWARECENTER_PASSWORD")}"
-  sensitive = true
-}
-variable "vmware_center_username" {
-  type    = string
-  default = "${env("VMWARECENTER_USERNAME")}"
-}
-variable "vmware_center_vm_folder" {
-  type    = string
-  default = "${env("VMWARECENTER_VM_FOLDER")}"
-}
-variable "vmware_center_vm_name" {
-  type    = string
-  default = "${env("VMWARECENTER_VM_NAME")}"
-}
-variable "vmware_center_vm_network" {
-  type    = string
-  default = "${env("VMWARECENTER_VM_NETWORK")}"
-}
-
-// Hyper-V settings
-variable "hyperv_generation" {
-  type    = string
-  default = "2"
-}
-variable "hyperv_switch" {
-  type    = string
-  default = "${env("hyperv_switch")}"
-}
-
-variable "preseed_path" {
-  type    = string
-  default = "autoinstall.yaml"
-}
-variable "vagrant_user_final_password" {
-  type      = string
-  default   = "${env("VAGRANT_USER_FINAL_PASSWORD")}"
-  sensitive = true
+locals {
+  http_directory  = "${path.root}/http"
 }
 
 source "hyperv-iso" "ubuntu" {
@@ -170,6 +70,42 @@ source "virtualbox-iso" "ubuntu" {
   vm_name                 = "${var.vagrant_box}"
 }
 
+source "vsphere-iso" "ubuntu" {
+  boot_command         = var.bootcommand
+  vcenter_server       = var.vmware_center_host
+  host                 = var.vmware_center_esxi_host
+  username             = "${var.vmware_center_username}"
+  password             = "${var.vmware_center_password}"
+  insecure_connection  = false
+  datacenter           = var.vmware_center_datacenter
+  datastore            = var.vmware_center_datastore
+  cluster              = var.vmware_center_cluster_name
+  http_port_max        = 65535
+  http_port_min        = 49152
+  convert_to_template  = true
+  CPUs                 = var.cpus
+  disk_controller_type = ["pvscsi"]
+  storage {
+      disk_size = "${var.disk_size}"
+      disk_thin_provisioned = true
+  }
+  guest_os_type        = "ubuntu64Guest"
+  http_directory       = "${local.http_directory}"
+  iso_checksum         = var.iso_checksum
+  iso_url              = var.iso_url
+  RAM                  = var.ram_mb
+  shutdown_command     = "echo 'vagrant' | sudo -S /sbin/halt -h -p"
+  ssh_password         = "vagrant"
+  ssh_port             = 22
+  ssh_timeout          = "10000s"
+  ssh_username         = "vagrant"
+  vm_name              = var.vmware_center_vm_name
+  network_adapters {
+      network = "${var.vmware_center_vm_network}"
+      network_card = "vmxnet3"
+  }
+}
+
 source "vmware-iso" "ubuntu" {
   boot_command         = ["<esc><wait>", "c<wait>", "set gfxpayload=keep<wait><enter>", "linux /casper/vmlinuz autoinstall ds=\"nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/\"<wait><enter>", "initrd /casper/initrd<wait><enter>", "boot<enter>"]
   boot_wait            = "4s"
@@ -199,50 +135,14 @@ source "vmware-iso" "ubuntu" {
  // vmx_remove_ethernet_interfaces = "${var.vmx_remove_ethernet_interfaces}"
 }
 
-source "vsphere-iso" "ubuntu" {
-  boot_command         = ["<esc><wait>", "c<wait>", "set gfxpayload=keep<wait><enter>", "linux /casper/vmlinuz autoinstall ds=\"nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/\"<wait><enter>", "initrd /casper/initrd<wait><enter>", "boot<enter>"]
-  vcenter_server       = "${var.vmware_center_host}"
-  host                 = "${var.vmware_center_esxi_host}"
-  username             = "${var.vmware_center_username}"
-  password             = "${var.vmware_center_password}"
-  insecure_connection  = false
-  datacenter           = "${var.vmware_center_datacenter}"
-  datastore            = "${var.vmware_center_datastore}"
-  cluster              = "${var.vmware_center_cluster_name}"
-  http_port_max        = 65535
-  http_port_min        = 49152
-  convert_to_template  = true
-  CPUs                 = "${var.cpus}"
-  disk_controller_type = ["pvscsi"]
-  storage {
-      disk_size = "${var.disk_size}"
-      disk_thin_provisioned = true
-  }
-  guest_os_type        = "ubuntu64Guest"
-  http_directory       = "./http"
-  iso_checksum         = "${var.iso_checksum}"
-  iso_url              = "${var.iso_url}"
-  memory               = "${var.ram_mb}"
-  shutdown_command     = "echo 'vagrant' | sudo -S /sbin/halt -h -p"
-  ssh_password         = "vagrant"
-  ssh_port             = 22
-  ssh_timeout          = "10000s"
-  ssh_username         = "vagrant"
-  vm_name              = "${var.vmware_center_vm_name}"
-  network_adapters {
-      network = "${var.vmware_center_vm_network}"
-      network_card = "vmxnet3"
-  }
-}
-
 # a build block invokes sources and runs provisioning steps on them. The
 # documentation for build blocks can be found here:
 # https://www.packer.io/docs/templates/hcl_templates/blocks/build
 build {
   sources = [
     // "source.hyperv-iso.ubuntu",
-    "source.virtualbox-iso.ubuntu",
-    "source.vmware-iso.ubuntu",
+    // "source.virtualbox-iso.ubuntu",
+    //"source.vmware-iso.ubuntu",
     "source.vsphere-iso.ubuntu"
   ]
 
