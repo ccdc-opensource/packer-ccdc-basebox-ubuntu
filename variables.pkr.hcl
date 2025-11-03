@@ -104,3 +104,29 @@ variable "vagrant_user_final_password" {
   default   = "${env("VAGRANT_USER_FINAL_PASSWORD")}"
   sensitive = true
 }
+variable "port_min" {
+  type    = number
+  default = 49152
+}
+
+variable "port_max" {
+  type    = number
+  default = 65535
+}
+
+variable "ipaddress" {
+  type    = string
+  default = "{{ .HTTPIP }}"
+}
+variable "ansible_playbook_file" {
+  type    = string
+  default = "ansible_provisioning/playbook.yaml"
+}
+variable "ansible_requirements_file" {
+  type    = string
+  default = "ansible_provisioning/requirements.yaml"
+}
+variable "ansible_roles_path" {
+  type    = string
+  default = "ansible_provisioning/roles"
+}
