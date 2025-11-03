@@ -82,6 +82,9 @@ source "vsphere-iso" "ubuntu" {
   cluster              = var.vmware_center_cluster_name
   http_port_max        = 65535
   http_port_min        = 49152
+  cd_files = [
+    "./http/meta-data",
+    "./http/user-data"]
   convert_to_template  = true
   CPUs                 = var.cpus
   disk_controller_type = ["pvscsi"]

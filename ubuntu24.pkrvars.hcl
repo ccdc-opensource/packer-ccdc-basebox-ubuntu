@@ -1,5 +1,14 @@
 // vmware settings
-bootcommand = ["<wait>c<wait>set gfxpayload=keep<enter><wait>linux /casper/vmlinuz quiet autoinstall ds=nocloud ---<enter><wait>initrd /casper/initrd<wait><enter><wait>boot<enter><wait>"]
+  boot_command = [
+    "<enter><wait><f6><wait><esc><wait>",
+    "linux /casper/vmlinuz",
+    "<wait><enter>",
+    "initrd /casper/initrd",
+    "<wait><enter>",
+    "autoinstall ",
+    "<wait><enter>",
+    "boot"
+  ]
 vmware_guest_os_type = "ubuntu-64"
 vsphere_guest_os_type = "ubuntu64Guest"
 vsphere_name = "ccdc-basebox-ubuntu-24.04"
