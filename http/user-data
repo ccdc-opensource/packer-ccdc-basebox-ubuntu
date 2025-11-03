@@ -21,6 +21,7 @@ autoinstall:
     - nfs-common
     - linux-headers-generic
     - perl
+    - open-vm-tools
     - cifs-utils
     - software-properties-common
     - rsync
@@ -28,6 +29,9 @@ autoinstall:
   ssh:
     install-server: yes
     allow-pw: yes
+  user-data:
+    disable_root: true
+    timezone: UTC
   late-commands:
     - curtin in-target --target=/target -- apt update
     - curtin in-target --target=/target -- apt upgrade -y
