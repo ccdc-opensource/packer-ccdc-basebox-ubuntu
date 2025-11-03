@@ -71,7 +71,7 @@ source "virtualbox-iso" "ubuntu" {
 }
 
 source "vsphere-iso" "ubuntu" {
-  boot_command         = var.bootcommand
+  boot_command         = var.boot_command
   vcenter_server       = var.vmware_center_host
   host                 = var.vmware_center_esxi_host
   username             = "${var.vmware_center_username}"
