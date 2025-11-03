@@ -1,11 +1,12 @@
-boot_command = [
-  "<esc><wait>",
-  "c<wait>",
-  "set gfxpayload=keep<wait><enter>",
-  "linux /casper/vmlinuz autoinstall ds='nocloud;seedfrom=/cdrom/'<wait><enter>",
-  "initrd /casper/initrd<wait><enter>",
-  "boot<enter>"
-]
+  boot_command = [
+    "<wait3s>c<wait3s>",
+    "linux /casper/vmlinuz --- autoinstall "ds=\"nocloud\""",
+    "<enter><wait>",
+    "initrd /casper/initrd",
+    "<enter><wait>",
+    "boot",
+    "<enter>"
+  ]
 vmware_guest_os_type = "ubuntu-64"
 vsphere_guest_os_type = "ubuntu64Guest"
 vsphere_name = "ccdc-basebox-ubuntu-22.04"

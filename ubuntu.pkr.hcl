@@ -85,6 +85,7 @@ source "vsphere-iso" "ubuntu" {
   cd_files = [
     "./http/meta-data",
     "./http/user-data"]
+  cd_label = "cidata"
   convert_to_template  = true
   CPUs                 = var.cpus
   disk_controller_type = ["pvscsi"]
