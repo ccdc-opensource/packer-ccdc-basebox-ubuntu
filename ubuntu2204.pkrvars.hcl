@@ -1,6 +1,6 @@
   boot_command = [
     "<wait3s>c<wait3s>",
-    "linux /casper/vmlinuz --- autoinstall "ds=\"nocloud\""",
+    "linux /casper/vmlinuz --- autoinstall ds=\"nocloud\"",
     "<enter><wait>",
     "initrd /casper/initrd",
     "<enter><wait>",
