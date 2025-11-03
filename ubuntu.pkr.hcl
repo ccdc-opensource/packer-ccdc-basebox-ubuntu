@@ -107,8 +107,7 @@ source "vsphere-iso" "ubuntu" {
 }
 
 source "vmware-iso" "ubuntu" {
-  #boot_command         = ["<esc><wait>", "c<wait>", "set gfxpayload=keep<wait><enter>", "linux /casper/vmlinuz autoinstall ds=\"nocloud-net;s=http://${var.ipaddress}:{{ .HTTPPort }}/\"<wait><enter>", "initrd /casper/initrd<wait><enter>", "boot<enter>"]
-  boot_command         = ["<esc><wait>", "c<wait>", "set gfxpayload=keep<wait><enter>", "linux /casper/vmlinuz autoinstall "ds=\"nocloud\"" "<wait><enter>", "initrd /casper/initrd<wait><enter>", "boot<enter>"]
+  boot_command         = ["<esc><wait>", "c<wait>", "set gfxpayload=keep<wait><enter>", "linux /casper/vmlinuz autoinstall ds=\"nocloud-net;s=http://${var.ipaddress}:{{ .HTTPPort }}/\"<wait><enter>", "initrd /casper/initrd<wait><enter>", "boot<enter>"]
   boot_wait            = "4s"
   cpus                 = "${var.cpus}"
   disk_size            = "${var.disk_size}"
