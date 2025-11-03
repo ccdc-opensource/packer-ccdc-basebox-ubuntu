@@ -35,7 +35,7 @@ variable "disk_size" {
   default =  "500000"
 }
 
-variable "bootcommand" {}
+variable "boot_command" {}
 
 variable "headless" {
   type    = bool
