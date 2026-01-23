@@ -71,7 +71,7 @@ source "virtualbox-iso" "ubuntu" {
 }
 
 source "vsphere-iso" "ubuntu" {
-  boot_command         = var.bootcommand
+  boot_command         = var.boot_command
   vcenter_server       = var.vmware_center_host
   host                 = var.vmware_center_esxi_host
   username             = "${var.vmware_center_username}"
@@ -82,6 +82,10 @@ source "vsphere-iso" "ubuntu" {
   cluster              = var.vmware_center_cluster_name
   http_port_max        = 65535
   http_port_min        = 49152
+  cd_files = [
+    "./http/meta-data",
+    "./http/user-data"]
+  cd_label = "cidata"
   convert_to_template  = true
   CPUs                 = var.cpus
   disk_controller_type = ["pvscsi"]
@@ -107,7 +111,7 @@ source "vsphere-iso" "ubuntu" {
 }
 
 source "vmware-iso" "ubuntu" {
-  boot_command         = ["<esc><wait>", "c<wait>", "set gfxpayload=keep<wait><enter>", "linux /casper/vmlinuz autoinstall ds=\"nocloud-net;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/\"<wait><enter>", "initrd /casper/initrd<wait><enter>", "boot<enter>"]
+  boot_command         = ["<esc><wait>", "c<wait>", "set gfxpayload=keep<wait><enter>", "linux /casper/vmlinuz autoinstall ds=\"nocloud-net;s=http://${var.ipaddress}:{{ .HTTPPort }}/\"<wait><enter>", "initrd /casper/initrd<wait><enter>", "boot<enter>"]
   boot_wait            = "4s"
   cpus                 = "${var.cpus}"
   disk_size            = "${var.disk_size}"
@@ -148,9 +152,9 @@ build {
 
 
   provisioner "ansible" {
-    playbook_file = "./ansible_provisioning/playbook.yaml"
-    galaxy_file = "./ansible_provisioning/requirements.yaml"
-    roles_path = "./ansible_provisioning/roles"
+    playbook_file = "${var.ansible_playbook_file}"
+    galaxy_file = "${var.ansible_requirements_file}"
+    roles_path = "${var.ansible_roles_path}"
     galaxy_force_install = true
     user            = "vagrant"
     use_proxy       = false
