@@ -9,14 +9,8 @@ autoinstall:
     # otherwise packer tries to connect and exceed max attempts:
     - systemctl stop ssh.service
     - systemctl stop ssh.socket
-  package_upgrade: true
   packages:
-    - cryptsetup
     - build-essential
-    - libssl-dev
-    - libreadline-dev
-    - zlib1g-dev
-    - linux-source
     - dkms
     - nfs-common
     - linux-headers-generic
@@ -25,14 +19,14 @@ autoinstall:
     - cifs-utils
     - software-properties-common
     - rsync
-    - ifupdown
   ssh:
-    install-server: yes
-    allow-pw: yes
-  user-data:
-    disable_root: true
-    timezone: UTC
+    install-server: true
+    allow-pw: true
+  storage:
+    layout:
+      name: lvm
+      sizing-policy: scaled
+  timezone: UTC
   late-commands:
-    - curtin in-target --target=/target -- apt update
-    - curtin in-target --target=/target -- apt upgrade -y
     - echo 'vagrant ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/vagrant
+    - curtin in-target --target=/target -- chmod 440 /etc/sudoers.d/vagrant
