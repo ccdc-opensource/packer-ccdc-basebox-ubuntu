@@ -11,12 +11,7 @@ autoinstall:
     - systemctl stop ssh.socket
   package_upgrade: true
   packages:
-    - cryptsetup
     - build-essential
-    - libssl-dev
-    - libreadline-dev
-    - zlib1g-dev
-    - linux-source
     - dkms
     - nfs-common
     - linux-headers-generic
@@ -25,13 +20,10 @@ autoinstall:
     - cifs-utils
     - software-properties-common
     - rsync
-    - ifupdown
   ssh:
-    install-server: yes
-    allow-pw: yes
-  user-data:
-    disable_root: true
-    timezone: UTC
+    install-server: true
+    allow-pw: true
+  timezone: UTC
   late-commands:
     - curtin in-target --target=/target -- apt update
     - curtin in-target --target=/target -- apt upgrade -y
