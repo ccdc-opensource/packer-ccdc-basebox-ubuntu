@@ -9,7 +9,6 @@ autoinstall:
     # otherwise packer tries to connect and exceed max attempts:
     - systemctl stop ssh.service
     - systemctl stop ssh.socket
-  package_upgrade: false
   packages:
     - build-essential
     - dkms
