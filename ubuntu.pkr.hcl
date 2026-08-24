@@ -2,20 +2,20 @@ packer {
   required_version = ">= 1.7.0"
   required_plugins {
     ansible = {
-      version = ">= 1.1.0"
+      version = ">= 1.1.6"
       source: "github.com/hashicorp/ansible"
     }
     vmware = {
-      version = ">= 1.0.9"
-      source  = "github.com/hashicorp/vmware"
+      version = ">= 2.1.5"
+      source  = "github.com/vmware/vmware"
     }
     vsphere = {
-      version = ">= 1.2.1"
-      source: "github.com/hashicorp/vsphere"
+      version = ">= 2.4.0"
+      source: "github.com/vmware/vsphere"
     }
     vagrant = {
       source  = "github.com/hashicorp/vagrant"
-      version = ">= 1.0.3"
+      version = ">= 1.1.7"
     }
   }
 }
