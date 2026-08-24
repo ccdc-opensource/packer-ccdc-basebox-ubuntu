@@ -17,3 +17,7 @@ iso_url = "https://releases.ubuntu.com/noble/ubuntu-24.04.4-live-server-amd64.is
 iso_checksum = "sha256:e907d92eeec9df64163a7e454cbc8d7755e8ddc7ed42f99dbc80c40f1a138433"
 box_basename = "ubuntu-24.04"
 vagrant_box = "ccdc-basebox/ubuntu-24.04"
+disk_size = 300000
+cpus = 2
+ram_mb = 4096
+
