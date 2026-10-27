@@ -16,48 +16,58 @@ packer {
 source "proxmox-iso" "ubuntu-kickstart" {
   boot_command = var.boot_command
   boot_wait    = "10s"
+  boot         = "order=scsi0;ide0;ide1;net0"
   cores        = var.cpus
   memory       = var.ram_mb
+  vm_name      = var.proxmox_name
   cpu_type     = "host"
-
+  node         = var.node_name
+  proxmox_url  = var.proxmox_url
+  username     = var.username
+  token        = var.token
+  ssh_password = "vagrant"
+  ssh_timeout  = "15m"
+  ssh_username = "vagrant"
+  template_description = "${var.proxmox_name}, generated on ${timestamp()}"
+  template_name        = var.proxmox_name
   disks {
-    disk_size         = var.disk_size
-    storage_pool      = var.storage_pool
-    storage_pool_type = "lvm"
-    type              = "scsi"
+    disk_size          = var.disk_size
+    storage_pool       = var.storage_pool
+    type               = "scsi"
+    exclude_from_backup = true
+    format             = var.disk_format
   }
 
   efi_config {
-    efi_storage_pool  = "local-lvm"
+    efi_storage_pool  = var.storage_pool
     efi_type          = "4m"
     pre_enrolled_keys = true
   }
 
-  http_directory           = "../http"
   insecure_skip_tls_verify = true
 
-  iso {
-    iso_url      = var.iso_url
-    iso_checksum = var.iso_checksum
+  boot_iso {
+    type             = "ide"
+    index            = "0"
+    iso_file         = var.iso_file
+    iso_checksum     = var.iso_checksum
+    iso_storage_pool = var.storage_pool
+    unmount          = true
+  }
+
+  additional_iso_files {
+    type              = "ide"
+    index             = "1"
+    iso_storage_pool  = var.storage_pool
+    cd_files          = ["../http/proxmox/user-data", "../http/proxmox/meta-data"]
+    cd_label          = "cidata"
+    unmount           = true
   }
 
   network_adapters {
-    bridge = "vmbr0"
-    model  = "virtio"
+    bridge   = "vmbr1"
+    model    = "virtio"
   }
-
-  node = var.node_name
-
-  password    = var.password
-  proxmox_url = var.proxmox_url
-  username    = var.username
-
-  ssh_password = var.password
-  ssh_timeout  = "15m"
-  ssh_username = "vagrant"
-
-  template_description = "${var.proxmox_name}, generated on ${timestamp()}"
-  template_name        = var.proxmox_name
 }
 
 build {

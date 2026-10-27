@@ -1,5 +1,6 @@
 ---
 roles:
+
   - src: git@github.com:ccdc-opensource/ansible-role-vagrant-base-box
     scm: git
     name: ccdc.vagrant-base-box
@@ -11,3 +12,4 @@ roles:
     name: ccdc.compact-vm-image
 collections:
   - devsec.hardening
+  - community.general

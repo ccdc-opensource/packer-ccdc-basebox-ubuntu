@@ -11,9 +11,42 @@
     - role: ccdc.install-vm-tools
     - role: devsec.hardening.ssh_hardening
       vars:
-        sshd_authenticationmethods: publickey password
+        sshd_authenticationmethods: "publickey,password"
         ssh_client_password_login: true
         ssh_server_password_login: true
         ssh_kerberos_support: false
         ssh_pam_support: false
     - role: ccdc.compact-vm-image
+
+  post_tasks:
+  # We have to do this as devsec hardening restarts ssh and requires host keys
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
+
+    - name: Find SSH host key material
+      ansible.builtin.find:
+        paths: /etc/ssh
+        patterns: ssh_host_*
+      register: find_ssh_host_keys
+      become: true
+
+    - name: Remove SSH host key material
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ find_ssh_host_keys.files }}"
+      loop_control:
+        label: "{{ item.path }}"
+      become: true
+
+    - name: Setting SSH keys to regenerate.
+      ansible.builtin.copy:
+        dest: /etc/rc.local
+        content: |
+          #!/bin/bash
+          if test -z "$(find /etc/ssh/ -iname 'ssh_host_*_key*')"; then
+              dpkg-reconfigure openssh-server
+          fi
+          exit 0
+        mode: "0755"
+      become: true
