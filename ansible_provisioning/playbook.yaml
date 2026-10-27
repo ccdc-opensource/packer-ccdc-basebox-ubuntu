@@ -19,7 +19,7 @@
     - role: ccdc.compact-vm-image
 
   post_tasks:
-  # We have to do this as devsec hardening restarts ssh and requires host keys
+    # We have to do this as devsec hardening restarts ssh and requires host keys
     - name: Flush handlers
       ansible.builtin.meta: flush_handlers
 

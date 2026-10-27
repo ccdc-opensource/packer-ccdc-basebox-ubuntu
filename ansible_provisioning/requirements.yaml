@@ -1,6 +1,5 @@
 ---
 roles:
-
   - src: git@github.com:ccdc-opensource/ansible-role-vagrant-base-box
     scm: git
     name: ccdc.vagrant-base-box
