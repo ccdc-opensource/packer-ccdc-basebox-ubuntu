@@ -11,3 +11,4 @@ roles:
     name: ccdc.compact-vm-image
 collections:
   - devsec.hardening
+  - community.general
