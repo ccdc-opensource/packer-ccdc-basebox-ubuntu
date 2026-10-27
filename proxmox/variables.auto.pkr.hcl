@@ -1,6 +1,11 @@
 variable "iso_file"{}
 variable "boot_command" {}
 
+variable "insecure_skip_tls_verify" {
+  type    = bool
+  default = false
+}
+
 variable "token" {
   type      = string
   sensitive = true

@@ -44,7 +44,7 @@ source "proxmox-iso" "ubuntu-kickstart" {
     pre_enrolled_keys = true
   }
 
-  insecure_skip_tls_verify = true
+  insecure_skip_tls_verify = var.insecure_skip_tls_verify
 
   boot_iso {
     type             = "ide"
