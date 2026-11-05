@@ -31,8 +31,8 @@ source "vsphere-iso" "ubuntu" {
   http_port_max        = 65535
   http_port_min        = 49152
   cd_files = [
-    "./http/meta-data",
-    "./http/user-data"]
+    "${path.root}/../http/vsphere/meta-data",
+    "${path.root}/../http/vsphere/user-data"]
   cd_label = "cidata"
   convert_to_template  = true
   CPUs                 = var.cpus
@@ -42,7 +42,7 @@ source "vsphere-iso" "ubuntu" {
       disk_thin_provisioned = true
   }
   guest_os_type        = "ubuntu64Guest"
-  http_directory       = "${local.http_directory}"
+  http_directory       = "${path.root}/../http/vsphere"
   iso_checksum         = var.iso_checksum
   iso_url              = var.iso_url
   RAM                  = var.ram_mb
