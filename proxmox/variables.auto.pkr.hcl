@@ -1,17 +1,20 @@
-variable "iso_file"{}
+variable "iso_file" {}
 variable "boot_command" {}
-
+variable "additional_iso_storage_pool" {}
+variable "vlan_tag" {}
 variable "insecure_skip_tls_verify" {
   type    = bool
   default = false
 }
-
-variable "token" {
-  type      = string
-  sensitive = true
-  default   = env("PROXMOX_TOKEN")
+variable "bridge" {
+  type    = string
+  default = "vmbr1"
 }
 
+variable "model" {
+  type    = string
+  default = "virtio"
+}
 variable "node_name" {
   type    = string
   default = "pve"

@@ -1,6 +1,7 @@
 packer {
   required_version = ">= 1.16.1"
 
+
   required_plugins {
     ansible = {
       version = ">= 1.1.6"
@@ -11,9 +12,9 @@ packer {
       source  = "github.com/hashicorp/proxmox"
     }
   }
-}
 
-source "proxmox-iso" "ubuntu-kickstart" {
+
+source "proxmox-iso" "ubuntu" {
   boot_command = var.boot_command
   boot_wait    = "10s"
   boot         = "order=scsi0;ide0;ide1;net0"
@@ -24,7 +25,6 @@ source "proxmox-iso" "ubuntu-kickstart" {
   node         = var.node_name
   proxmox_url  = var.proxmox_url
   username     = var.username
-  token        = var.token
   ssh_password = "vagrant"
   ssh_timeout  = "15m"
   ssh_username = "vagrant"
@@ -50,28 +50,29 @@ source "proxmox-iso" "ubuntu-kickstart" {
     type             = "ide"
     index            = "0"
     iso_file         = var.iso_file
+    iso_storage_pool  = var.storage_pool
     iso_checksum     = var.iso_checksum
-    iso_storage_pool = var.storage_pool
     unmount          = true
   }
 
   additional_iso_files {
     type              = "ide"
     index             = "1"
-    iso_storage_pool  = var.storage_pool
+    iso_storage_pool  = var.additional_iso_storage_pool
     cd_files          = ["../http/proxmox/user-data", "../http/proxmox/meta-data"]
     cd_label          = "cidata"
     unmount           = true
   }
 
   network_adapters {
-    bridge   = "vmbr1"
-    model    = "virtio"
+    bridge   = var.bridge
+    vlan_tag = var.vlan_tag
+    model    = var.model
   }
 }
 
 build {
-  sources = ["source.proxmox-iso.ubuntu-kickstart"]
+  sources = ["source.proxmox-iso.ubuntu"]
 
   provisioner "ansible" {
     playbook_file        = var.ansible_playbook_file
