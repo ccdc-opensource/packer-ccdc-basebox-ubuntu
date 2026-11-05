@@ -1,3 +1,4 @@
+# Packer variables for building Ubuntu 24.04 basebox on Proxmox (replace the placeholders with your actual Proxmox configuration)
 boot_command = [
   "<wait3s>c<wait3s>",
   "linux /casper/vmlinuz --- autoinstall ds=\"nocloud\"",

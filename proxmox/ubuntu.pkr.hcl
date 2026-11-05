@@ -1,7 +1,6 @@
 packer {
   required_version = ">= 1.16.1"
 
-
   required_plugins {
     ansible = {
       version = ">= 1.1.6"
@@ -12,7 +11,7 @@ packer {
       source  = "github.com/hashicorp/proxmox"
     }
   }
-
+}
 
 source "proxmox-iso" "ubuntu" {
   boot_command = var.boot_command
