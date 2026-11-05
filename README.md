@@ -1,72 +1,50 @@
 # Packer Ubuntu base box automation
 
-This repository contains the Packer definitions for building Ubuntu base boxes for both 22.04 and 24.04.
-Each image is built with a predefined `vagrant` administrator account and larger default disk sizing to support the build environments used by the team.
+This repository contains Packer templates for building Ubuntu base images on Proxmox and VMware vSphere. The builds create platform templates and provision them with the Ansible playbook in `ansible_provisioning/`.
 
-The scripts are date-based and produce versioned images in the format `(current date).0`.
+## Supported builds
 
-## Supported versions
+| Platform | Ubuntu versions | Packer files |
+| --- | --- | --- |
+| Proxmox | 24.04, 26.04 | `proxmox/ubuntu.pkr.hcl` and the matching `ubuntu*.pkrvars.hcl` |
+| VMware vSphere | 22.04, 24.04 | `vsphere/ubuntu.pkr.hcl` and the matching `ubuntu*.pkrvars.hcl` |
 
-- Ubuntu 22.04: `ubuntu2204.pkrvars.hcl`
-- Ubuntu 24.04: `ubuntu24.pkrvars.hcl`
-
-## How do I use this?
-
-You need the following software installed:
+## Requirements
 
 - Packer
-- VirtualBox for VirtualBox builds
-- VMware Fusion / Workstation for VMware builds
+- Ansible and Ansible Galaxy, for provisioning
+- Access to the target Proxmox or vSphere environment
 
-Once installed, open a terminal in this repo and run the relevant build script for the version you need:
+Packer installs the required provider and Ansible plugins when you run `packer init`.
 
-- `build-virtualbox.sh` for the VirtualBox build flow
-- `build-vmware.sh` for the VMware build flow
-- `build-vsphere.sh` for the vSphere build flow
+## Build a Proxmox template
 
-## Ubuntu 22.04
+1. Copy the appropriate variables file in `proxmox/` as needed, and set the Proxmox URL, node, storage pools, ISO file, network bridge/VLAN, and API token ID as the `username` (for example, `user@pve!token-name`). The ISO must already be available in Proxmox storage; set `iso_file` to its Proxmox storage path. Review the CPU, memory, disk, and network defaults for your environment.
+2. Set the Proxmox API token secret in the `PROXMOX_TOKEN` environment variable. Keep the token secret out of the variables file and Git.
+3. From the `proxmox/` directory, initialize the plugins and build the desired Ubuntu version:
 
-The 22.04 definition uses:
+   ```sh
+   packer init ubuntu.pkr.hcl
+   packer build -var-file=ubuntu24.pkrvars.hcl ubuntu.pkr.hcl
+   ```
 
-- `ubuntu2204.pkrvars.hcl`
-- `http/user-data`
-- `ubuntu.pkr.hcl` with the 22.04 ISO and VM settings
+   For Ubuntu 26.04, use `ubuntu26.pkrvars.hcl` instead. The build creates a Proxmox VM template using the cloud-init files in `http/proxmox/`.
 
-## Ubuntu 24.04
+## Build a vSphere template
 
-The 24.04 definition uses:
+1. In `vsphere/`, copy `vsphere-environment-do-not-add-sample` to `vsphere-environment-do-not-add`. Fill in the vCenter, datacenter, cluster, ESXi host, datastore, network, VM name, and login values. This file is ignored by Git; keep credentials there and do not commit them.
+2. Source the environment file in your shell, then initialize the plugins and build the desired version from the `vsphere/` directory:
 
-- `ubuntu24.pkrvars.hcl`
-- `http/user-data`
-- `ubuntu.pkr.hcl` with the Noble 24.04 ISO and VM settings
+   ```sh
+   . ./vsphere-environment-do-not-add
+   packer init ubuntu.pkr.hcl
+   packer build -var-file=ubuntu24.pkrvars.hcl ubuntu.pkr.hcl
+   ```
 
-## How do I deploy the template to vSphere?
+   For Ubuntu 22.04, use `ubuntu2204.pkrvars.hcl` instead. vSphere builds use the cloud-init files in `http/vsphere/` and convert the finished VM to a vSphere template.
 
-- Copy `vsphere-environment-do-not-add-sample` to `vsphere-environment-do-not-add`
-- Add your vSphere login details
-- Run `build-vsphere.sh`
+Both platforms use the `vagrant` account during installation and Ansible provisioning. The vSphere build creates a vSphere template; its Vagrant box and Artifactory post-processors are disabled for that source.
 
-## How do I make the boxes available to developers?
+## Further reading
 
-To publish an updated box to the Artifactory repository:
-
-1. Retrieve the Artifactory API key from the project repository page.
-2. Export it as `ARTIFACTORY_API_KEY`.
-3. Run the upload script for the relevant provider.
-
-Example:
-
-  export ARTIFACTORY_API_KEY='key'
-
-Then run the upload scripts for the desired provider(s).
-
-## Where do I begin studying this?
-
-The [documentation on the Bento repository](https://github.com/chef/bento) provides useful guidance for the base image process.
-This repository adapts that pattern to our needs, including larger disks and provider-specific builds.
-
-You should be familiar with git submodules and the Packer template workflow.
-
-Why Packer? https://www.packer.io/intro/why.html
-
-Packer documentation: https://www.packer.io/docs/index.html
+- [Packer documentation](https://developer.hashicorp.com/packer/docs) for Packer templates and commands.
