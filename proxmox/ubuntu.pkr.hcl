@@ -76,7 +76,7 @@ source "proxmox-iso" "ubuntu" {
 build {
   sources = ["source.proxmox-iso.ubuntu"]
   provisioner "shell" {
-    execute_command = "sudo -E bash '{{ .Path }}'"
+    execute_command = "sudo bash '{{ .Path }}'"
     inline          = ["cloud-init status --wait"]
   }
   provisioner "ansible" {
@@ -97,7 +97,7 @@ build {
   }
 
   provisioner "shell" {
-    execute_command = "sudo -E bash '{{ .Path }}'"
+    execute_command = "sudo bash '{{ .Path }}'"
     script          = "${path.root}/scripts/prepare-cloud-init.sh"
   }
 }
