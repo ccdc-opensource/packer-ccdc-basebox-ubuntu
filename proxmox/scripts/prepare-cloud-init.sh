@@ -13,7 +13,5 @@ datasource_list: [NoCloud, ConfigDrive, None]
 preserve_hostname: false
 EOF
 
-systemctl enable qemu-guest-agent.service
-
 # Leave instance initialization and machine identity to the clone's first boot.
 cloud-init clean --logs --seed --machine-id
