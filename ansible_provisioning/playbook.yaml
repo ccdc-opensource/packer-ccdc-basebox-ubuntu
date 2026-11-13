@@ -4,6 +4,7 @@
   vars:
     ansible_host_key_checking: false
     ansible_remote_tmp: /tmp/.ansible/
+    packer_proxmox_cloud_init: false
   roles:
     - role: ccdc.vagrant-base-box
       vars:
@@ -40,6 +41,7 @@
       become: true
 
     - name: Setting SSH keys to regenerate.
+      when: not packer_proxmox_cloud_init
       ansible.builtin.copy:
         dest: /etc/rc.local
         content: |

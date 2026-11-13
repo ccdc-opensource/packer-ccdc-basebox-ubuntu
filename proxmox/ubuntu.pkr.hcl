@@ -14,27 +14,30 @@ packer {
 }
 
 source "proxmox-iso" "ubuntu" {
-  boot_command = var.boot_command
-  boot_wait    = "10s"
-  boot         = "order=scsi0;ide0;ide1;net0"
-  cores        = var.cpus
-  memory       = var.ram_mb
-  vm_name      = var.proxmox_name
-  cpu_type     = "host"
-  node         = var.node_name
-  proxmox_url  = var.proxmox_url
-  username     = var.username
-  ssh_password = "vagrant"
-  ssh_timeout  = "15m"
-  ssh_username = "vagrant"
-  template_description = "${var.proxmox_name}, generated on ${timestamp()}"
-  template_name        = var.proxmox_name
+  boot_command            = var.boot_command
+  boot_wait               = "10s"
+  boot                    = "order=scsi0;ide0;ide1;net0"
+  cores                   = var.cpus
+  memory                  = var.ram_mb
+  vm_name                 = var.proxmox_name
+  cpu_type                = "host"
+  node                    = var.node_name
+  proxmox_url             = var.proxmox_url
+  username                = var.username
+  cloud_init              = true
+  cloud_init_storage_pool = var.storage_pool
+  cloud_init_disk_type    = "ide"
+  ssh_password            = "vagrant"
+  ssh_timeout             = "15m"
+  ssh_username            = "vagrant"
+  template_description    = "${var.proxmox_name}, generated on ${timestamp()}"
+  template_name           = var.proxmox_name
   disks {
-    disk_size          = var.disk_size
-    storage_pool       = var.storage_pool
-    type               = "scsi"
+    disk_size           = var.disk_size
+    storage_pool        = var.storage_pool
+    type                = "scsi"
     exclude_from_backup = true
-    format             = var.disk_format
+    format              = var.disk_format
   }
 
   efi_config {
@@ -49,18 +52,18 @@ source "proxmox-iso" "ubuntu" {
     type             = "ide"
     index            = "0"
     iso_file         = var.iso_file
-    iso_storage_pool  = var.storage_pool
+    iso_storage_pool = var.storage_pool
     iso_checksum     = var.iso_checksum
     unmount          = true
   }
 
   additional_iso_files {
-    type              = "ide"
-    index             = "1"
-    iso_storage_pool  = var.additional_iso_storage_pool
-    cd_files          = ["../http/proxmox/user-data", "../http/proxmox/meta-data"]
-    cd_label          = "cidata"
-    unmount           = true
+    type             = "ide"
+    index            = "1"
+    iso_storage_pool = var.additional_iso_storage_pool
+    cd_files         = ["../http/proxmox/user-data", "../http/proxmox/meta-data"]
+    cd_label         = "cidata"
+    unmount          = true
   }
 
   network_adapters {
@@ -72,7 +75,10 @@ source "proxmox-iso" "ubuntu" {
 
 build {
   sources = ["source.proxmox-iso.ubuntu"]
-
+  provisioner "shell" {
+    execute_command = "sudo bash '{{ .Path }}'"
+    inline          = ["cloud-init status --wait"]
+  }
   provisioner "ansible" {
     playbook_file        = var.ansible_playbook_file
     galaxy_file          = var.ansible_requirements_file
@@ -85,6 +91,13 @@ build {
       "-v",
       "-e",
       "ansible_ssh_password=vagrant",
+      "-e",
+      "{\"packer_proxmox_cloud_init\":true}",
     ]
+  }
+
+  provisioner "shell" {
+    execute_command = "sudo bash '{{ .Path }}'"
+    script          = "${path.root}/scripts/prepare-cloud-init.sh"
   }
 }

@@ -12,6 +12,7 @@ autoinstall:
   package_update: true
   package_upgrade: true
   packages:
+    - cloud-init
     - build-essential
     - dkms
     - nfs-common
